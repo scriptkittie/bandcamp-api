@@ -3,7 +3,7 @@
 
 ### Overview
 
-Bandcamp-api is API wrapper written in JAVA to retrieve Bandcamp band, album, and track metadata. It utilizes an underlying existing JSON API framework which pre-exists within bandcamp which is also how the website retrieves it's data. This project also provides an easy way to execute asynchronous requests against the API.
+Bandcamp-api is API wrapper written in JAVA to retrieve Bandcamp band, album, and track metadata. It utilizes an underlying existing JSON API framework which pre-exists within bandcamp which is also how the website retrieves its data. This project also provides an easy way to execute asynchronous requests against the API.
 
 ## Changelog
 
