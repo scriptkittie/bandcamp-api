@@ -1,4 +1,4 @@
-package net.cypher.util;
+package io.laniakia.util;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

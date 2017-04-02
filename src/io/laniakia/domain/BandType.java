@@ -1,4 +1,4 @@
-package net.cypher.domain;
+package io.laniakia.domain;
 
 public interface BandType {
 }

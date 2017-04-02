@@ -1,11 +1,11 @@
 
-package net.cypher.domain;
+package io.laniakia.domain;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 
-public class PaypalImage {
+public class Image_ {
 
     @SerializedName("format")
     @Expose

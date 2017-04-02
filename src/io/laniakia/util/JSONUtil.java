@@ -1,4 +1,4 @@
-package net.cypher.util;
+package io.laniakia.util;
 
 import java.io.StringReader;
 import java.util.ArrayList;

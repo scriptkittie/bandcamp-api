@@ -1,4 +1,4 @@
-package net.cypher.util;
+package io.laniakia.util;
 
 public enum FilterType {
 	ARTIST,

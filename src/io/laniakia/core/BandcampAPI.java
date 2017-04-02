@@ -1,4 +1,4 @@
-package net.cypher.core;
+package io.laniakia.core;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -21,13 +21,13 @@ import org.jsoup.select.Elements;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import net.cypher.domain.Album;
-import net.cypher.domain.Band;
-import net.cypher.domain.Track;
-import net.cypher.util.ConfigUtil;
-import net.cypher.util.FilterType;
-import net.cypher.util.HttpUtil;
-import net.cypher.util.JSONUtil;
+import io.laniakia.domain.Album;
+import io.laniakia.domain.Band;
+import io.laniakia.domain.Track;
+import io.laniakia.util.ConfigUtil;
+import io.laniakia.util.FilterType;
+import io.laniakia.util.HttpUtil;
+import io.laniakia.util.JSONUtil;
 
 public class BandcampAPI 
 {

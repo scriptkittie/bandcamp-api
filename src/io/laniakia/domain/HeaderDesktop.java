@@ -1,5 +1,5 @@
 
-package net.cypher.domain;
+package io.laniakia.domain;
 
 import java.util.ArrayList;
 import java.util.List;

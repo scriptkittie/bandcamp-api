@@ -12,12 +12,12 @@ import org.junit.Test;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 
-import net.cypher.core.BandcampAPI;
-import net.cypher.domain.Album;
-import net.cypher.domain.Band;
-import net.cypher.util.APICall;
-import net.cypher.util.ConfigUtil;
-import net.cypher.util.JSONUtil;
+import io.laniakia.core.BandcampAPI;
+import io.laniakia.domain.Album;
+import io.laniakia.domain.Band;
+import io.laniakia.util.APICall;
+import io.laniakia.util.ConfigUtil;
+import io.laniakia.util.JSONUtil;
 
 public class APITest 
 {
