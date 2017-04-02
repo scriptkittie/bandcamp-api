@@ -22,7 +22,7 @@ Just add the following dependencies to your maven pom.xml
 
 ```xml
 <dependency>
-    <groupId>net.cypher</groupId>
+    <groupId>io.laniakia</groupId>
     <artifactId>bandcamp-api</artifactId>
     <version>1.0.0</version>
 </dependency>
