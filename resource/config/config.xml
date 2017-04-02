@@ -1,0 +1,9 @@
+<api>
+	<search>
+		<baseUrl>https://bandcamp.com/search</baseUrl>
+		<parameter>
+			<query>q</query>
+			<description>Name of Band</description>
+		</parameter>
+	</search>
+</api>
