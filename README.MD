@@ -90,7 +90,7 @@ bandCampObj.getBand("https://parallels.bandcamp.com/");
 //Query album by URL
 bandCampObj.getAlbum("https://parallels.bandcamp.com/album/visionaries");
 //Query by band and album
-bandCampObj.getAlbum("Parallells", "Visionaries");
+bandCampObj.getAlbum("Parallels", "Visionaries");
 ```
 
 ## Install from Source
