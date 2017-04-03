@@ -31,7 +31,7 @@ Just add the following dependencies to your maven pom.xml
 
 **Search Endpoint**
 
-Config details on the current bandcamp search REST endpoint are stored in /resource/config.xml
+Config details on the current bandcamp search REST endpoint are stored in /resources/config.xml
 
 **Initialize BandcampAPI With Default Threadcount**
 
