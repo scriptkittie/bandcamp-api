@@ -106,7 +106,7 @@ mvn install
 ## Issues/Forks
 Please report any issues to the issues section & as always if you have any functionality requests go ahead and open an issue containing your suggestions.
 
-If you have a addition to the project, fork it and submit a pull request. Any type of contributions are welcome.
+If you have an addition to the project, fork it and submit a pull request. Any type of contributions are welcome.
 
 ## Credits
 Package written by [StCypher](https://twitter.com/yo_scriptkittie/with_replies)
