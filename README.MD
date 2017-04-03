@@ -36,14 +36,14 @@ Config details on the current bandcamp search REST endpoint are stored in /resou
 **Initialize BandcampAPI With Default Threadcount**
 
 ```java
-import net.cypher.core.BandcampAPI;
+import io.laniakia.core.BandcampAPI;
 ...
 BandcampAPI bandCampObj = new BandcampAPI();
 ```
 **Initialize BandcampAPI With Custom Thread Count**
 
 ```java
-import net.cypher.core.BandcampAPI;
+import io.laniakia.core.BandcampAPI;
 ...
 int threadPoolCount = 4;
 BandcampAPI bandCampObj = new BandcampAPI(threadPoolCount);
@@ -51,7 +51,7 @@ BandcampAPI bandCampObj = new BandcampAPI(threadPoolCount);
 **Band Search Options**
 
 ```java
-import net.cypher.core.BandcampAPI;
+import io.laniakia.core.BandcampAPI;
 ...
 int threadPoolCount = 4;
 boolean useThreads = true;
@@ -63,7 +63,7 @@ bandCampObj.searchBand("parallels", searchMultiplePages, useThreads);
 **Search Bands With Asynchronous Requests**
 
 ```java
-import net.cypher.core.BandcampAPI;
+import io.laniakia.core.BandcampAPI;
 ...
 BandcampAPI bandCampObj = new BandcampAPI();
 bandCampObj.searchBand("parallels", true, true);
@@ -72,7 +72,7 @@ bandCampObj.searchBand("parallels", true, true);
 **Search Only First Page Of Results**
 
 ```java
-import net.cypher.core.BandcampAPI;
+import io.laniakia.core.BandcampAPI;
 ...
 BandcampAPI bandCampObj = new BandcampAPI();
 bandCampObj.searchBand("parallels", false, true);
@@ -81,7 +81,7 @@ bandCampObj.searchBand("parallels", false, true);
 **Other API Calls**
 
 ```java
-import net.cypher.core.BandcampAPI;
+import io.laniakia.core.BandcampAPI;
 ...
 BandcampAPI bandCampObj = new BandcampAPI();
 bandCampObj.searchBand("parallels", false, true);
@@ -113,4 +113,3 @@ Package written by [StCypher](https://twitter.com/yo_scriptkittie/with_replies)
 
 
 API calls made to [Bandcamp](https://bandcamp.com/)
-
