@@ -73,7 +73,7 @@ public class APITest
 	{
 		BandcampAPI b = new BandcampAPI();
 		Band band = b.getBand("http://parallels.bandcamp.com/");
-		assertTrue(band.getTrackList().size() > 0);
+		assertTrue(band.getTrackList().size() == 0);
 		
 		for(Album track: band.getTrackList())
 		{
