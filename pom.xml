@@ -10,16 +10,16 @@
 	<scm>
 		<url>https://github.com/scriptkittie/bandcamp-api.git</url>
 	</scm>
-	 <licenses>
-        <license>
-            <name>GNU General Public License v3.0</name>
-            <url>https://www.gnu.org/licenses/gpl-3.0.en.html</url>
-        </license>
-    </licenses>
-    <developers>
-        <developer>
-            <name>Saint Cypher</name>
-        </developer>
+	<licenses>
+		<license>
+			<name>GNU General Public License v3.0</name>
+			<url>https://www.gnu.org/licenses/gpl-3.0.en.html</url>
+		</license>
+	</licenses>
+	<developers>
+		<developer>
+			<name>Saint Cypher</name>
+		</developer>
 	</developers>
 	<distributionManagement>
 		<snapshotRepository>
@@ -30,6 +30,16 @@
 	<build>
 		<sourceDirectory>src</sourceDirectory>
 		<testSourceDirectory>test</testSourceDirectory>
+		<resources>
+			<resource>
+				<directory>resources</directory>
+			</resource>
+		</resources>
+		<testResources>
+			<testResource>
+				<directory>resources</directory>
+			</testResource>
+		</testResources>
 		<plugins>
 			<plugin>
 				<artifactId>maven-compiler-plugin</artifactId>
@@ -146,6 +156,11 @@
 			<groupId>stax</groupId>
 			<artifactId>stax-api</artifactId>
 			<version>1.0.1</version>
+		</dependency>
+		<dependency>
+			<groupId>commons-io</groupId>
+			<artifactId>commons-io</artifactId>
+			<version>2.5</version>
 		</dependency>
 	</dependencies>
 </project>
