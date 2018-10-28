@@ -96,12 +96,15 @@ public class JSONUtil
 	
 	public static List<JsonObject> getTrackInfo(String json)
 	{
-		Gson gson = new Gson();
 		List<JsonObject> jsonTrackList = new ArrayList<JsonObject>();
-		JsonStreamParser parser = new JsonStreamParser( new StringReader(json.replace("},{", "}{")));
-		while (parser.hasNext())
+		if (StringUtils.isNotBlank(json))
 		{
-			jsonTrackList.add(gson.fromJson(parser.next(),JsonObject.class));
+			Gson gson = new Gson();
+			JsonStreamParser parser = new JsonStreamParser( new StringReader(json.replace("},{", "}{")));
+			while (parser.hasNext())
+			{
+				jsonTrackList.add(gson.fromJson(parser.next(),JsonObject.class));
+			}
 		}
 		return jsonTrackList;
 	}
