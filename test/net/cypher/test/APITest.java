@@ -45,18 +45,18 @@ public class APITest
 		logger.debug("Band search results size: " + bandList.size());
 	}
 	
-	@Test
-	public void testSearchMulti() throws Exception
-	{
-		BandcampAPI b = new BandcampAPI(20);
-		List<Band> bandList = b.searchBand("parallels", true, true);
-		for(Band band : bandList)
-		{
-			assertTrue(band != null);
-			logger.debug("Band Name: "  + band.getName() + ", Band URL: " + band.getUrl() + ", Albums: " + band.getAlbums().size());
-		}
-		logger.debug("Band search results size: " + bandList.size());
-	}
+//	@Test
+//	public void testSearchMulti() throws Exception
+//	{
+//		BandcampAPI b = new BandcampAPI(2);
+//		List<Band> bandList = b.searchBand("parallels", true, true);
+//		for(Band band : bandList)
+//		{
+//			assertTrue(band != null);
+//			logger.debug("Band Name: "  + band.getName() + ", Band URL: " + band.getUrl() + ", Albums: " + band.getAlbums().size());
+//		}
+//		logger.debug("Band search results size: " + bandList.size());
+//	}
 	
 	@Test
 	public void testBandParse() throws Exception
@@ -73,7 +73,7 @@ public class APITest
 	{
 		BandcampAPI b = new BandcampAPI();
 		Band band = b.getBand("http://parallels.bandcamp.com/");
-		assertTrue(band.getTrackList().size() == 0);
+		assertTrue(band.getTrackList().size() != 0);
 		
 		for(Album track: band.getTrackList())
 		{
