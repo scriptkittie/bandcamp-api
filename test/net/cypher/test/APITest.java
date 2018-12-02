@@ -103,4 +103,12 @@ public class APITest
 		album = b.getAlbum("parallels", "visionaries");
 		assertTrue(album != null);
 	}
+	
+	@Test
+	public void testGetAlbumWithNoTrackInfoProvided() throws Exception
+	{
+		BandcampAPI b = new BandcampAPI();
+		Album album = b.getAlbum("https://ghostbath.bandcamp.com/album/moonlover");
+		assertTrue(album != null);
+	}
 }
