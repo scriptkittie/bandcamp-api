@@ -20,7 +20,7 @@ public class BandcampLiveTest {
 
 		BandcampAPI api = new BandcampAPI();
 		Band artist = api.getBandProfile(artistUrl);
-	Album album = api.getAlbum("parallels", "visionaries");
+		Album album = api.getAlbum("parallels", "visionaries");
 		Track track = api.getTrack(trackUrl);
 
 		assertNotNull("Artist metadata was not parsed from " + artistUrl, artist);
@@ -34,5 +34,21 @@ public class BandcampLiveTest {
 		assertEquals("All We'll Ever Know", album.getTrackList().get(11).getTitle());
 		assertNotNull("Track metadata was not parsed from " + trackUrl, track);
 		assertEquals("Ultralight", track.getTitle());
+	}
+
+	@Test
+	public void parsesLabelProfileAndFirstCatalogPage() throws Exception {
+		String labelUrl = "https://northernsilenceproductions.bandcamp.com/";
+		BandcampAPI api = new BandcampAPI();
+
+		Band profile = api.getLabelProfile(labelUrl);
+		assertNotNull("Label profile was not parsed from " + labelUrl, profile);
+		assertTrue("Label lookup must identify the account as a label", profile.isIsLabel());
+
+		Band label = api.getLabel(labelUrl);
+		assertNotNull("Label catalog was not parsed from " + labelUrl, label);
+		assertTrue("Label catalog lookup must identify the account as a label", label.isIsLabel());
+		assertTrue("Expected releases on the first label music page", !label.getAlbums().isEmpty());
+		assertNotNull("Expected a title on the first listed release", label.getAlbums().get(0).getTitle());
 	}
 }

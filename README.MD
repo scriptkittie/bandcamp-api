@@ -33,6 +33,9 @@ BandcampAPI bandcamp = new BandcampAPI();
 
 Band artist = bandcamp.getBand("https://parallels.bandcamp.com/");
 Band profile = bandcamp.getBandProfile("https://parallels.bandcamp.com/"); // profile only, no release crawl
+Band labelProfile = bandcamp.getLabelProfile("https://northernsilenceproductions.bandcamp.com/");
+Band label = bandcamp.getLabel("https://northernsilenceproductions.bandcamp.com/"); // first catalog page
+Band labelCatalog = bandcamp.getLabel("https://northernsilenceproductions.bandcamp.com/", true); // up to five pages
 Album album = bandcamp.getAlbum("https://parallels.bandcamp.com/album/visionaries");
 Album byName = bandcamp.getAlbum("parallels", "visionaries");
 Track track = bandcamp.getTrack("https://parallels.bandcamp.com/track/ultralight");
@@ -59,7 +62,9 @@ import io.laniakia.domain.Band;
 List<Band> artists = bandcamp.searchBandProfiles("parallels", true);
 ```
 
-`getBand`, `getBandProfile`, `getAlbum`, `getTrack`, `searchBand`, and `searchBandProfiles` can throw exceptions when a page cannot be fetched or parsed. A `BandcampAccessChallengeException` is thrown if Bandcamp returns a client-challenge page instead of content. Catch and handle those failures in the calling application. The default HTTP timeout is 15 seconds. Requests are serialized and paced at least two seconds apart across the process; transient failures get at most one retry. HTTP 429/5xx responses honor `Retry-After` up to one minute; longer delays stop the request instead of retrying early.
+`getBand`, `getBandProfile`, `getLabelProfile`, `getLabel`, `getAlbum`, `getTrack`, `searchBand`, and `searchBandProfiles` can throw exceptions when a page cannot be fetched or parsed. A `BandcampAccessChallengeException` is thrown if Bandcamp returns a client-challenge page instead of content. Catch and handle those failures in the calling application. The default HTTP timeout is 15 seconds. Requests are serialized and paced at least two seconds apart across the process; transient failures get at most one retry. HTTP 429/5xx responses honor `Retry-After` up to one minute; longer delays stop the request instead of retrying early.
+
+Label lookup is explicit because a label account's `/music` page lists releases that may belong to separate artist subdomains. `getLabelProfile(url)` reads only the label profile, `getLabel(url)` parses the releases shown on the first catalog page, and `getLabel(url, true)` follows advertised catalog pages with a maximum of five pages total. Use `getAlbum(albumUrl)` with a release's direct URL when you need to fetch an individual release; `getAlbum(labelSubdomain, slug)` only works when that release is hosted on the label's own subdomain.
 
 ## Development
 
@@ -68,7 +73,7 @@ mvn test
 mvn package
 ```
 
-The live test fetches one artist page, one album page, and one track page, with two-second spacing. It requires network access and written authorization for automated Bandcamp requests. CI builds Java packages on Java 8, 17, and 21, then runs the live check on trusted pushes and manual dispatches using Java 17.
+The live test fetches artist, album, track, and label pages, with two-second spacing. It requires network access and written authorization for automated Bandcamp requests. CI builds Java packages on Java 8, 17, and 21, then runs the live check on trusted pushes and manual dispatches using Java 17.
 
 Run only the live comparison with:
 
@@ -80,7 +85,7 @@ These checks may fail when Bandcamp changes its page markup, catalog content, or
 
 ## Compatibility notes
 
-- Public operations include artist search and lookup (`searchBand`, `searchBandProfiles`, `getBand`, `getBandProfile`), album lookup (`getAlbum`), and single-track lookup (`getTrack`). `getBandProfile` fetches only the artist page. `getBand` also fetches the music page and release pages. `getAlbum` includes its track list when the page exposes track metadata.
+- Public operations include artist search and lookup (`searchBand`, `searchBandProfiles`, `getBand`, `getBandProfile`), label lookup (`getLabelProfile`, `getLabel`), album lookup (`getAlbum`), and single-track lookup (`getTrack`). Profile methods fetch only the account page. `getBand` fetches an artist's music page and release pages; `getLabel` fetches its label catalog and listed release pages. Label pagination is opt-in and capped at five catalog pages. `getAlbum` includes its track list when the page exposes track metadata.
 - Parser support for the legacy `BandData` and `TralbumData` page variables remains available for pages that still expose them.
 - Search results for a blank query are returned as an empty list.
 - This library reads public page markup and embedded data; it is not an official Bandcamp API client.

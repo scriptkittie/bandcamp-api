@@ -33,6 +33,7 @@ public class BandcampAPI
 {
 	private static final Logger logger = LogManager.getLogger(BandcampAPI.class);
 	private static final int MAX_THREAD_POOL_SIZE = 2;
+	private static final int MAX_LABEL_MUSIC_PAGES = 5;
 	private final int THREAD_POOL_SIZE;
 	
 	public BandcampAPI(int threadPoolSize)
@@ -245,27 +246,102 @@ public class BandcampAPI
 	
 	public Band getBand(String bandURL) throws Exception
 	{
-		return getBand(bandURL, true);
+		return getAccount(bandURL, true, false, false);
 	}
 
 	/** Fetch only an artist's profile metadata without crawling its releases. */
 	public Band getBandProfile(String bandURL) throws Exception
 	{
-		return getBand(bandURL, false);
+		return getAccount(bandURL, false, false, false);
 	}
 
-	private Band getBand(String bandURL, boolean includeReleases) throws Exception
+	/** Fetch a label profile without crawling the label's release catalog. */
+	public Band getLabelProfile(String labelURL) throws Exception
 	{
-		JsonObject bandJson = JSONUtil.parseBandData(bandURL);
+		return getAccount(labelURL, false, true, false);
+	}
+
+	/** Fetch releases listed on the first page of a label's music catalog. */
+	public Band getLabel(String labelURL) throws Exception
+	{
+		return getLabel(labelURL, false);
+	}
+
+	/**
+	 * Fetch releases listed on a label's music catalog. When multiplePages is true,
+	 * follow Bandcamp's advertised catalog pages, up to five pages total.
+	 */
+	public Band getLabel(String labelURL, boolean multiplePages) throws Exception
+	{
+		return getAccount(labelURL, true, true, multiplePages);
+	}
+
+	private Band getAccount(String accountURL, boolean includeReleases, boolean label,
+			boolean multiplePages) throws Exception
+	{
+		String normalizedURL = normalizeArtistUrl(accountURL);
+		if (normalizedURL == null)
+		{
+			throw new IllegalArgumentException("accountURL must be an http(s) Bandcamp subdomain URL");
+		}
+		JsonObject bandJson = JSONUtil.parseBandData(normalizedURL);
 		if(bandJson != null && !bandJson.isJsonNull())
 		{
 			Band band = new Gson().fromJson(bandJson.toString(), Band.class);
-			if(band != null && includeReleases)
+			if (band == null)
 			{
-				String albumListURL = HttpUtil.addPaths(bandURL, "music");
+				return null;
+			}
+			if (label)
+			{
+				band.setIsLabel(true);
+				String name = StringUtils.trimToEmpty(band.getName());
+				for (String prefix : new String[] { "Artists | ", "Music | " })
+				{
+					if (name.startsWith(prefix))
+					{
+						band.setName(name.substring(prefix.length()).trim());
+						break;
+					}
+				}
+			}
+			if(includeReleases)
+			{
+				String albumListURL = HttpUtil.addPaths(normalizedURL, "music");
 				Document musicPage = HttpUtil.getDocument(albumListURL);
-				Set<String> albumLinkList = getAlbumLinkList(musicPage, bandURL);
-				Set<String> trackLinkList = getTrackLinkList(musicPage, bandURL);
+				List<Document> catalogPages = new ArrayList<Document>();
+				if (musicPage != null)
+				{
+					catalogPages.add(musicPage);
+				}
+				if (label && multiplePages && musicPage != null)
+				{
+					for (String pageURL : JSONUtil.getPageNumbers(musicPage))
+					{
+						if (catalogPages.size() >= MAX_LABEL_MUSIC_PAGES)
+						{
+							logger.info("Stopping label catalog pagination at the {} page limit for {}",
+									MAX_LABEL_MUSIC_PAGES, normalizedURL);
+							break;
+						}
+						if (!isLabelMusicPageURL(pageURL, albumListURL))
+						{
+							continue;
+						}
+						Document nextPage = HttpUtil.getDocument(pageURL);
+						if (nextPage != null)
+						{
+							catalogPages.add(nextPage);
+						}
+					}
+				}
+				Set<String> albumLinkList = new java.util.LinkedHashSet<String>();
+				Set<String> trackLinkList = new java.util.LinkedHashSet<String>();
+				for (Document catalogPage : catalogPages)
+				{
+					albumLinkList.addAll(getAlbumLinkList(catalogPage, normalizedURL));
+					trackLinkList.addAll(getTrackLinkList(catalogPage, normalizedURL));
+				}
 				if(albumLinkList != null && !albumLinkList.isEmpty())
 				{
 					logger.debug("Processing Albums: " + albumLinkList.size());
@@ -298,6 +374,25 @@ public class BandcampAPI
 			return band;
 		}
 		return null;
+	}
+
+	private boolean isLabelMusicPageURL(String candidateURL, String musicURL)
+	{
+		try
+		{
+			java.net.URI candidate = new java.net.URI(candidateURL);
+			java.net.URI base = new java.net.URI(musicURL);
+			String candidatePath = StringUtils.removeEnd(candidate.getPath(), "/");
+			String basePath = StringUtils.removeEnd(base.getPath(), "/");
+			return "https".equalsIgnoreCase(candidate.getScheme())
+					&& StringUtils.equalsIgnoreCase(candidate.getHost(), base.getHost())
+					&& StringUtils.equals(candidatePath, basePath)
+					&& candidate.getUserInfo() == null;
+		}
+		catch (java.net.URISyntaxException invalidUrl)
+		{
+			return false;
+		}
 	}
 	
 	public Album getAlbum(String albumURL) throws Exception
