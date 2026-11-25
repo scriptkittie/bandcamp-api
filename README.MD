@@ -1,116 +1,83 @@
-## bandcamp-api
+# bandcamp-api
 
-[![Build Status](https://travis-ci.org/scriptkittie/bandcamp-api.svg?branch=master)](https://travis-ci.org/scriptkittie/bandcamp-api)
+A Java/Maven library for retrieving public artist, album, and track metadata from Bandcamp pages.
 
-### Overview
+> This is an unofficial client that reads Bandcamp page data; Bandcamp does not publish or guarantee the page formats and search endpoints it uses. Automated access requires explicit authorization and must stay within its scope. Requests are rate-limited, but pacing does not grant permission. See Bandcamp's [Acceptable Use Policy](https://get.bandcamp.help/en/articles/15263124-bandcamp-s-acceptable-use-and-moderation-policy) and [API access documentation](https://bandcamp.com/developer).
 
-Bandcamp-api is API wrapper written in JAVA to retrieve Bandcamp band, album, and track metadata. It utilizes an underlying existing JSON API framework which pre-exists within bandcamp which is also how the website retrieves its data. This project also provides an easy way to execute asynchronous requests against the API.
+## Requirements
 
-## Changelog
+- Java 8 or later
+- Maven 3.6.3 or later
 
-<details> 
-  <summary>Open spoiler to view changelog </summary>
-  
-### 1.0.0
-- Initial release.
-</details>
+## Install
 
+The last published release is `1.0.0`. To use the current development version, build it locally:
 
-## Installation
-### Install from Maven Central
-
-Just add the following dependencies to your maven pom.xml
-
-```xml
-<dependency>
-    <groupId>io.laniakia</groupId>
-    <artifactId>bandcamp-api</artifactId>
-    <version>1.0.0</version>
-</dependency>
-```
-## Example Usage
-
-**Search Endpoint**
-
-Config details on the current bandcamp search REST endpoint are stored in /resources/config.xml
-
-**Initialize BandcampAPI With Default Threadcount**
-
-```java
-import io.laniakia.core.BandcampAPI;
-...
-BandcampAPI bandCampObj = new BandcampAPI();
-```
-**Initialize BandcampAPI With Custom Thread Count**
-
-```java
-import io.laniakia.core.BandcampAPI;
-...
-int threadPoolCount = 4;
-BandcampAPI bandCampObj = new BandcampAPI(threadPoolCount);
-```
-**Band Search Options**
-
-```java
-import io.laniakia.core.BandcampAPI;
-...
-int threadPoolCount = 4;
-boolean useThreads = true;
-boolean searchMultiplePages = true
-BandcampAPI bandCampObj = new BandcampAPI(threadPoolCount);
-bandCampObj.searchBand("parallels", searchMultiplePages, useThreads);
-```
-
-**Search Bands With Asynchronous Requests**
-
-```java
-import io.laniakia.core.BandcampAPI;
-...
-BandcampAPI bandCampObj = new BandcampAPI();
-bandCampObj.searchBand("parallels", true, true);
-```
-
-**Search Only First Page Of Results**
-
-```java
-import io.laniakia.core.BandcampAPI;
-...
-BandcampAPI bandCampObj = new BandcampAPI();
-bandCampObj.searchBand("parallels", false, true);
-```
-
-**Other API Calls**
-
-```java
-import io.laniakia.core.BandcampAPI;
-...
-BandcampAPI bandCampObj = new BandcampAPI();
-bandCampObj.searchBand("parallels", false, true);
-//Query specific band
-bandCampObj.getBand("https://parallels.bandcamp.com/");
-//Query album by URL
-bandCampObj.getAlbum("https://parallels.bandcamp.com/album/visionaries");
-//Query by band and album
-bandCampObj.getAlbum("Parallels", "Visionaries");
-```
-
-## Install from Source
-
-Clone from remote repository then `mvn install`. All of the modules will be installed to your local maven repository.
-
-~~~bash
+```sh
 git clone https://github.com/scriptkittie/bandcamp-api.git
 cd bandcamp-api
 mvn install
-~~~
+```
 
-## Issues/Forks
-Please report any issues to the issues section & as always if you have any functionality requests go ahead and open an issue containing your suggestions.
+The project version is currently `1.1.0-SNAPSHOT`; no new Maven Central release is implied by this source update.
 
-If you have an addition to the project, fork it and submit a pull request. Any type of contributions are welcome.
+## Usage
 
-## Credits
-Package written by [StCypher](https://twitter.com/yo_scriptkittie/with_replies)
+```java
+import io.laniakia.core.BandcampAPI;
+import io.laniakia.domain.Album;
+import io.laniakia.domain.Band;
+import io.laniakia.domain.Track;
 
+BandcampAPI bandcamp = new BandcampAPI();
 
-API calls made to [Bandcamp](https://bandcamp.com/)
+Band artist = bandcamp.getBand("https://parallels.bandcamp.com/");
+Band profile = bandcamp.getBandProfile("https://parallels.bandcamp.com/"); // profile only, no release crawl
+Album album = bandcamp.getAlbum("https://parallels.bandcamp.com/album/visionaries");
+Album byName = bandcamp.getAlbum("parallels", "visionaries");
+Track track = bandcamp.getTrack("https://parallels.bandcamp.com/track/ultralight");
+```
+
+Search for artists and fetch their full release lists (optionally including all result pages):
+
+```java
+BandcampAPI bandcamp = new BandcampAPI(2); // at most two workers; HTTP requests remain serialized and paced
+List<Band> artists = bandcamp.searchBand("parallels", true, true);
+```
+
+For a lighter search that retrieves only artist profiles and avoids fetching each result's discography, use `searchBandProfiles`:
+
+```java
+List<Band> artists = bandcamp.searchBandProfiles("parallels", true);
+```
+
+`getBand`, `getBandProfile`, `getAlbum`, `getTrack`, `searchBand`, and `searchBandProfiles` can throw exceptions when a page cannot be fetched or parsed. A `BandcampAccessChallengeException` is thrown if Bandcamp returns a client-challenge page instead of content. Catch and handle those failures in the calling application. The default HTTP timeout is 15 seconds. Requests are serialized and paced at least two seconds apart across the process; transient failures get at most one retry. HTTP 429/5xx responses honor `Retry-After` up to one minute; longer delays stop the request instead of retrying early.
+
+## Development
+
+```sh
+mvn test
+mvn package
+```
+
+The live test fetches one artist page, one album page, and one track page, with two-second spacing. It requires network access and written authorization for automated Bandcamp requests. CI builds Java packages on Java 8, 17, and 21, then runs the live check on trusted pushes and manual dispatches using Java 17.
+
+Run only the live comparison with:
+
+```sh
+mvn -Dtest=BandcampLiveTest test
+```
+
+These checks may fail when Bandcamp changes its page markup, catalog content, or network behavior.
+
+## Compatibility notes
+
+- Public operations include artist search and lookup (`searchBand`, `searchBandProfiles`, `getBand`, `getBandProfile`), album lookup (`getAlbum`), and single-track lookup (`getTrack`). `getBandProfile` fetches only the artist page. `getBand` also fetches the music page and release pages. `getAlbum` includes its track list when the page exposes track metadata.
+- Parser support for the legacy `BandData` and `TralbumData` page variables remains available for pages that still expose them.
+- Search results for a blank query are returned as an empty list.
+- This library reads public page markup and embedded data; it is not an official Bandcamp API client.
+- The source is licensed under [GPL-3.0](LICENSE.MD).
+
+## Contributing
+
+Please include a reproducible example when reporting parsing issues. Tests are intentionally live-only and make bounded requests.

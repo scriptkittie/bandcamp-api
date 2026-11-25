@@ -89,6 +89,9 @@ public class Album {
     @SerializedName("art_id")
     @Expose
     private Long artId;
+    @SerializedName("image")
+    @Expose
+    private String imageUrl;
     @SerializedName("artist")
     @Expose
     private Object artist;
@@ -312,6 +315,14 @@ public class Album {
 
     public void setArtId(Long artId) {
         this.artId = artId;
+    }
+
+    public String getImageUrl() {
+        return imageUrl;
+    }
+
+    public void setImageUrl(String imageUrl) {
+        this.imageUrl = imageUrl;
     }
 
     public Object getArtist() {

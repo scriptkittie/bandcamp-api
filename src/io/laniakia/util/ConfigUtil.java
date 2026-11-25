@@ -1,12 +1,14 @@
 package io.laniakia.util;
 
 import java.util.Map;
+import java.io.InputStream;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamReader;
 
 import org.apache.commons.lang3.StringUtils;
-import org.apache.http.client.utils.URIBuilder;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -17,33 +19,53 @@ public class ConfigUtil
 	public static APICall getConfigValue(String key) throws Exception
 	{
 		XMLInputFactory factory = XMLInputFactory.newInstance();
-		XMLStreamReader parser = factory.createXMLStreamReader(ConfigUtil.class.getResourceAsStream("/config/config.xml"), "Cp1252");
-		logger.debug("Initialized XMLStreamReader");
-		APICall query = null;
-		while (parser.hasNext()) 
+		factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+		factory.setProperty("javax.xml.stream.isSupportingExternalEntities", false);
+		try (InputStream stream = ConfigUtil.class.getResourceAsStream("/config/config.xml"))
 		{
-			int currentEvent = parser.next();
-			if(currentEvent ==  XMLStreamReader.START_ELEMENT)
+			if (stream == null)
 			{
-				if(parser.getLocalName().equalsIgnoreCase(key))
+				throw new IllegalStateException("Missing /config/config.xml from the classpath");
+			}
+			XMLStreamReader parser = factory.createXMLStreamReader(stream, "UTF-8");
+			try
+			{
+				APICall query = null;
+				while (parser.hasNext())
 				{
-					query = new APICall(key);
+					int currentEvent = parser.next();
+					if (currentEvent != XMLStreamReader.START_ELEMENT)
+					{
+						continue;
+					}
+					if (parser.getLocalName().equalsIgnoreCase(key))
+					{
+						query = new APICall(key);
+					}
+					else if (query != null && parser.getLocalName().equalsIgnoreCase("baseUrl"))
+					{
+						query.setBaseURL(parser.getElementText());
+					}
+					else if (query != null && parser.getLocalName().equalsIgnoreCase("parameter"))
+					{
+						getParameters(parser, query);
+					}
 				}
-				else if(parser.getLocalName().equalsIgnoreCase("baseUrl"))
-				{
-					query.setBaseURL(parser.getElementText());
-				}
-				else if(parser.getLocalName().equalsIgnoreCase("parameter"))
-				{
-					getParameters(parser, query);
-				}
+				return query;
+			}
+			finally
+			{
+				parser.close();
 			}
 		}
-		return query;
 	}
 	
 	public static void getParameters(XMLStreamReader reader, APICall query) throws Exception
 	{
+		if (query == null)
+		{
+			return;
+		}
 		while (reader.hasNext()) 
 		{
 			int currentEvent = reader.next();
@@ -63,22 +85,28 @@ public class ConfigUtil
 		if(query != null && StringUtils.isNotBlank(query.getBaseURL()))
 		{
 			logger.debug("APICall Base URL: " + query.getBaseURL());
-			URIBuilder builder = new URIBuilder(query.getBaseURL());
+			StringBuilder url = new StringBuilder(query.getBaseURL());
+			boolean hasQuery = query.getBaseURL().contains("?");
 			if(parameters != null && !parameters.isEmpty() && query.HasParameters())
 			{
 				for (Map.Entry<String, String> entry : parameters.entrySet())
 				{
 				    String key = entry.getKey();
-				    if(StringUtils.isNotBlank(key) && query.getParameters().contains(key))
+					if(StringUtils.isNotBlank(key) && query.getParameters().contains(key)
+							&& entry.getValue() != null)
 				    {
 						String value = entry.getValue();
-						builder.addParameter(key, value);
+						url.append(hasQuery ? '&' : '?')
+								.append(URLEncoder.encode(key, StandardCharsets.UTF_8.name()))
+								.append('=')
+								.append(URLEncoder.encode(value, StandardCharsets.UTF_8.name()));
+						hasQuery = true;
 						logger.debug("Added Parameter: key=" + key + ", value=" + value);
 				    }
 				}
 			}
 			
-			return builder.build().toString();
+			return url.toString();
 		}
 		return null;
 	}
