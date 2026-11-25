@@ -11,7 +11,7 @@ A Java/Maven library for retrieving public artist, album, and track metadata fro
 
 ## Install
 
-The last published release is `1.0.0`. To use the current development version, build it locally:
+The last published release is `1.0.0`. To use the current development version, build it locally. Maven's default lifecycle runs the live test for `test`, `package`, and `install`. These commands make bounded network requests to Bandcamp and require network access and written authorization. Do not run them unless that authorization applies to your use.
 
 ```sh
 git clone https://github.com/scriptkittie/bandcamp-api.git
@@ -41,6 +41,10 @@ Track track = bandcamp.getTrack("https://parallels.bandcamp.com/track/ultralight
 Search for artists and fetch their full release lists (optionally including all result pages):
 
 ```java
+import java.util.List;
+import io.laniakia.core.BandcampAPI;
+import io.laniakia.domain.Band;
+
 BandcampAPI bandcamp = new BandcampAPI(2); // at most two workers; HTTP requests remain serialized and paced
 List<Band> artists = bandcamp.searchBand("parallels", true, true);
 ```
@@ -48,6 +52,10 @@ List<Band> artists = bandcamp.searchBand("parallels", true, true);
 For a lighter search that retrieves only artist profiles and avoids fetching each result's discography, use `searchBandProfiles`:
 
 ```java
+import java.util.List;
+import io.laniakia.core.BandcampAPI;
+import io.laniakia.domain.Band;
+
 List<Band> artists = bandcamp.searchBandProfiles("parallels", true);
 ```
 
